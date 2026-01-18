@@ -29,7 +29,7 @@ export class DetallePlanilla {
     nullable: true,
     precision: 8,
     scale: 2,
-    default: () => 0.0,
+    default: () => "0.0",
   })
   bonificacionFamiliar: number | null;
 
@@ -38,7 +38,7 @@ export class DetallePlanilla {
     nullable: true,
     precision: 8,
     scale: 2,
-    default: () => 0.0,
+    default: () => "0.0",
   })
   asignacionFamiliar: number | null;
 
@@ -47,7 +47,7 @@ export class DetallePlanilla {
     nullable: true,
     precision: 8,
     scale: 2,
-    default: () => 0.0,
+    default: () => "0.0",
   })
   otrosIngresos: number | null;
 
@@ -59,7 +59,7 @@ export class DetallePlanilla {
     nullable: true,
     precision: 8,
     scale: 2,
-    default: () => 0.0,
+    default: () => "0.0",
   })
   descuentoAfp: number | null;
 
@@ -68,7 +68,7 @@ export class DetallePlanilla {
     nullable: true,
     precision: 8,
     scale: 2,
-    default: () => 0.0,
+    default: () => "0.0",
   })
   descuentoEssalud: number | null;
 
@@ -77,7 +77,7 @@ export class DetallePlanilla {
     nullable: true,
     precision: 8,
     scale: 2,
-    default: () => 0.0,
+    default: () => "0.0",
   })
   descuentoOnp: number | null;
 
@@ -86,7 +86,7 @@ export class DetallePlanilla {
     nullable: true,
     precision: 8,
     scale: 2,
-    default: () => 0.0,
+    default: () => "0.0",
   })
   otrosDescuentos: number | null;
 
@@ -99,14 +99,14 @@ export class DetallePlanilla {
   @Column('integer', {
     name: 'dias_trabajados',
     nullable: true,
-    default: () => 30,
+    default: () => "30",
   })
   diasTrabajados: number | null;
 
   @Column('integer', {
     name: 'dias_faltados',
     nullable: true,
-    default: () => 0,
+    default: () => "0",
   })
   diasFaltados: number | null;
 
@@ -125,7 +125,7 @@ export class DetallePlanilla {
     nullable: true,
     precision: 10,
     scale: 2,
-    default: () => 0.0,
+    default: () => "0.0",
   })
   ctsSemestral: number | null;
 
@@ -134,7 +134,7 @@ export class DetallePlanilla {
     nullable: true,
     precision: 10,
     scale: 2,
-    default: () => 0.0,
+    default: () => "0.0",
   })
   ctsMensual: number | null;
 
@@ -143,7 +143,7 @@ export class DetallePlanilla {
     nullable: true,
     precision: 10,
     scale: 2,
-    default: () => 0.0,
+    default: () => "0.0",
   })
   gratificacion: number | null;
 

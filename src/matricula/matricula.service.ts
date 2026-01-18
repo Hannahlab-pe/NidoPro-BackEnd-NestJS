@@ -160,7 +160,7 @@ export class MatriculaService {
           nroDocumento: createMatriculaDto.estudianteData.nroDocumento,
           observaciones:
             createMatriculaDto.estudianteData.observaciones || null,
-          idRol: '35225955-5aeb-4df0-8014-1cdfbce9b41e',
+          idRol: '5c0e7652-cad9-461f-b24a-8c61d7ee4e21',
           imagen_estudiante:
             createMatriculaDto.estudianteData.imagen_estudiante || null,
         };

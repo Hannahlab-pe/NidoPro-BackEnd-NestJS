@@ -31,16 +31,16 @@ export class ContactoEmergencia {
     @Column("character varying", { name: "relacion_estudiante", length: 50 })
     relacionEstudiante: string; // Relación específica con el estudiante
 
-    @Column("boolean", { name: "es_principal", default: false })
+    @Column("boolean", { name: "es_principal", default: () => "false" })
     esPrincipal: boolean; // Para identificar el contacto principal
 
-    @Column("integer", { name: "prioridad", default: 1 })
+    @Column("integer", { name: "prioridad", default: () => "1" })
     prioridad: number; // Orden de contacto (1 = primera opción)
 
     @Column("text", { name: "observaciones", nullable: true })
     observaciones: string | null;
 
-    @Column("boolean", { name: "esta_activo", default: true })
+    @Column("boolean", { name: "esta_activo", default: () => "true" })
     estaActivo: boolean;
 
     @Column("date", {

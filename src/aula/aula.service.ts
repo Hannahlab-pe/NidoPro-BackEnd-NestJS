@@ -35,7 +35,7 @@ export class AulaService {
   }
 
   async findAll(): Promise<Aula[]> {
-    return await this.aulaRepository.find();
+    return await this.aulaRepository.find({ relations: ['idGrado'] });
   }
 
   async findOne(id: string): Promise<Aula | null> {

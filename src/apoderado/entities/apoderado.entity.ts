@@ -44,14 +44,14 @@ export class Apoderado {
 
     @Column("boolean", {
         name: "es_principal",
-        default: true,
+        default: () => "true",
     })
     esPrincipal: boolean;
 
     @Column("character varying", {
         name: "tipo_apoderado",
         length: 50,
-        default: "principal",
+        default: () => "'principal'",
     })
     tipoApoderado: string;
 

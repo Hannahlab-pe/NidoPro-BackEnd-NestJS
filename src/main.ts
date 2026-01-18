@@ -9,10 +9,12 @@ async function bootstrap() {
   // Configuración de CORS para permitir los orígenes especificados
   app.enableCors({
     origin: [
-      'http://localhost:5173',  // Desarrollo
-      'http://localhost:3000',  // Desarrollo alternativo
+      'http://localhost:5173', // Desarrollo
+      'http://localhost:3000',
+      'http://localhost:3001', // Desarrollo alternativo
+      // Desarrollo alternativo
       'https://nido-pro-frontend.vercel.app', // ← AGREGAR ESTO
-      'https://awsnidopr.up.railway.app' // Si necesitan comunicación interna
+      'https://awsnidopr.up.railway.app', // Si necesitan comunicación interna
     ],
     credentials: true,
   });
@@ -20,11 +22,13 @@ async function bootstrap() {
   // Prefijo global para la API
   app.setGlobalPrefix('api/v1');
 
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true, // Elimina propiedades no definidas en el DTO
-    forbidNonWhitelisted: true, // Lanza error si se envían propiedades no definidas en el DTO
-    transform: true, // Convierte automáticamente los tipos de datos
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // Elimina propiedades no definidas en el DTO
+      forbidNonWhitelisted: true, // Lanza error si se envían propiedades no definidas en el DTO
+      transform: true, // Convierte automáticamente los tipos de datos
+    }),
+  );
 
   const config = new DocumentBuilder()
     .setTitle('Nido Pro')
@@ -34,7 +38,6 @@ async function bootstrap() {
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
-
 
   await app.listen(process.env.PORT ?? 3000);
 }

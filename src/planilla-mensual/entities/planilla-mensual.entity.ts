@@ -51,7 +51,7 @@ export class PlanillaMensual {
     nullable: true,
     precision: 12,
     scale: 2,
-    default: () => 0.0,
+    default: () => "0.0",
   })
   totalIngresos: number | null;
 
@@ -60,7 +60,7 @@ export class PlanillaMensual {
     nullable: true,
     precision: 12,
     scale: 2,
-    default: () => 0.0,
+    default: () => "0.0",
   })
   totalDescuentos: number | null;
 
@@ -69,7 +69,7 @@ export class PlanillaMensual {
     nullable: true,
     precision: 12,
     scale: 2,
-    default: () => 0.0,
+    default: () => "0.0",
   })
   totalNeto: number | null;
 

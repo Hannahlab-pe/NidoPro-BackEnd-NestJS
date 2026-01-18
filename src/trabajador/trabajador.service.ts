@@ -43,11 +43,16 @@ export class TrabajadorService {
       );
     }
 
-    // Validar que el rol es apropiado para trabajadores (no ESTUDIANTE)
+    // Validar que el rol es apropiado para trabajadores (no ESTUDIANTE ni APODERADO)
     const rolesValidosParaTrabajadores = [
       UserRole.DIRECTORA,
       UserRole.SECRETARIA,
       UserRole.DOCENTE,
+      UserRole.COORDINADOR,
+      UserRole.AUXILIAR,
+      UserRole.PSICOLOGO,
+      UserRole.ADMINISTRADOR,
+      UserRole.ESPECIALISTA,
     ];
 
     if (!rolesValidosParaTrabajadores.includes(rol.nombre as UserRole)) {
@@ -204,11 +209,16 @@ export class TrabajadorService {
       );
     }
 
-    // Validar que el rol es apropiado para trabajadores (no ESTUDIANTE)
+    // Validar que el rol es apropiado para trabajadores (no ESTUDIANTE ni APODERADO)
     const rolesValidosParaTrabajadores = [
       UserRole.DIRECTORA,
       UserRole.SECRETARIA,
       UserRole.DOCENTE,
+      UserRole.COORDINADOR,
+      UserRole.AUXILIAR,
+      UserRole.PSICOLOGO,
+      UserRole.ADMINISTRADOR,
+      UserRole.ESPECIALISTA,
     ];
 
     if (!rolesValidosParaTrabajadores.includes(rol.nombre as UserRole)) {

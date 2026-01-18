@@ -19,7 +19,7 @@ export class Rol {
     @Column("text", { name: "descripcion", nullable: true })
     descripcion: string | null;
 
-    @Column("boolean", { name: "esta_activo", default: true })
+    @Column("boolean", { name: "esta_activo", default: () => "true" })
     estaActivo: boolean;
 
     @OneToMany(() => Trabajador, (trabajador) => trabajador.idRol)

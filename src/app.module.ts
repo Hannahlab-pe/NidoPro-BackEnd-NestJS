@@ -63,6 +63,7 @@ import { NotificacionModule } from './notificacion/notificacion.module';
       database: process.env.DB_NAME,
       schema: process.env.DB_SCHEMA,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true, // Crea las tablas automáticamente - SOLO para desarrollo
     }),
     RAGModule,
     ApoderadoModule,

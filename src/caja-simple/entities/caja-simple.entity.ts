@@ -99,7 +99,7 @@ export class CajaSimple {
     @Column("varchar", {
         name: "estado",
         length: 15,
-        default: "'CONFIRMADO'",
+        default: () => "'CONFIRMADO'",
         comment: "CONFIRMADO, PENDIENTE, ANULADO"
     })
     estado: string;

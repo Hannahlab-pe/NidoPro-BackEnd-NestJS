@@ -20,10 +20,10 @@ export class MatriculaAula {
     })
     idMatriculaAula: string;
 
-    @Column("uuid", { name: "id_matricula", unique: true })
+    @Column("uuid", { name: "id_matricula" })
     idMatricula: string;
 
-    @Column("uuid", { name: "id_aula", unique: true })
+    @Column("uuid", { name: "id_aula" })
     idAula: string;
 
     @Column("date", {
@@ -42,10 +42,7 @@ export class MatriculaAula {
     estado: string | null;
 
     @OneToOne(() => Aula, (aula) => aula.matriculaAula, { onDelete: "CASCADE" })
-    @JoinColumn([
-        { name: "id_aula", referencedColumnName: "idAula" },
-        { name: "id_aula", referencedColumnName: "idAula" },
-    ])
+    @JoinColumn([{ name: "id_aula", referencedColumnName: "idAula" }])
     aula: Aula;
 
     @ManyToOne(() => Matricula, (matricula) => matricula.matriculaAula, {
