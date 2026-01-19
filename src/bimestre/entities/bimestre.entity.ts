@@ -31,7 +31,7 @@ export class Bimestre {
     })
     idBimestre: string;
 
-    @Column("integer", { name: "numero_bimestre", unique: true })
+    @Column("integer", { name: "numero_bimestre" })
     numeroBimestre: number;
 
     @Column("character varying", { name: "nombre_bimestre", length: 50 })
@@ -53,7 +53,7 @@ export class Bimestre {
     })
     estaActivo: boolean | null;
 
-    @Column("uuid", { name: "id_periodo_escolar", unique: true })
+    @Column("uuid", { name: "id_periodo_escolar" })
     idPeriodoEscolar: string;
 
     @ManyToOne(

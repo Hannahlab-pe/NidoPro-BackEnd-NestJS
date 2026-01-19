@@ -6,6 +6,7 @@ import { LibretaBimestral } from "src/libreta-bimestral/entities/libreta-bimestr
 import { MatriculaAula } from "src/matricula-aula/entities/matricula-aula.entity";
 import { ProgramacionMensual } from "src/programacion-mensual/entities/programacion-mensual.entity";
 import { Tarea } from "src/tarea/entities/tarea.entity";
+import { AsignacionDocenteCursoAula } from "src/asignacion-docente-curso-aula/entities/asignacion-docente-curso-aula.entity";
 import {
     Column,
     Entity,
@@ -67,4 +68,10 @@ export class Aula {
         (libretaBimestral) => libretaBimestral.idAula
     )
     libretaBimestrals: LibretaBimestral[];
+
+    @OneToMany(
+        () => AsignacionDocenteCursoAula,
+        (asignacionDocenteCursoAula) => asignacionDocenteCursoAula.idAula
+    )
+    asignacionDocenteCursoAulas: AsignacionDocenteCursoAula[];
 }

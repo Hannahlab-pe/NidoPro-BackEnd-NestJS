@@ -167,10 +167,6 @@ class CreateEstudianteDataDto {
   @IsString()
   nroDocumento: string;
 
-  @ApiProperty({ description: 'ID del rol del estudiante' })
-  @IsUUID()
-  idRol: string;
-
   @ApiProperty({ description: 'Tipo de documento', required: false })
   @IsOptional()
   @IsString()
@@ -384,10 +380,12 @@ export class CreateMatriculaDto {
     description: 'Costo de la matrícula del estudiante',
     example: '150.00',
     type: 'string',
+    required: false,
   })
+  @IsOptional()
   @IsString()
   @IsDecimal({ decimal_digits: '2' })
-  costoMatricula: string;
+  costoMatricula?: string;
 
   @ApiProperty({
     description: 'Fecha de ingreso del estudiante',
@@ -423,6 +421,15 @@ export class CreateMatriculaDto {
   @IsOptional()
   @IsString()
   voucherImg?: string;
+
+  @ApiProperty({
+    description: 'URL del voucher (alias de voucherImg para compatibilidad)',
+    example: 'https://ejemplo.com/voucher123.jpg',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  voucherUrl?: string;
 
   @ApiProperty({
     description: 'Año escolar de la matrícula (por defecto año actual)',
@@ -476,47 +483,14 @@ export class CreateMatriculaDto {
   @ValidateNested()
   @Type(() => CreateEstudianteDataDto)
   estudianteData?: CreateEstudianteDataDto;
+}
 
-  // OPCIÓN 3: Selección/preferencia de aula
+// DTO para asignar aula a una matrícula
+export class AsignarAulaDto {
   @ApiProperty({
-    description:
-      'ID del aula específica para asignar al estudiante (opcional, si no se proporciona se asigna automáticamente la mejor disponible)',
+    description: 'ID del aula a asignar',
     example: 'd4e5f6g7-h8i9-0123-def4-56789abc0123',
     format: 'uuid',
-    required: false,
   })
-  @IsOptional()
   @IsUUID()
-  idAulaEspecifica?: string;
-
-  @ApiProperty({
-    description: 'Motivo de la preferencia de aula (opcional, para registro administrativo)',
-    example: 'Hermano en la misma sección',
-    required: false
-  })
-  @IsOptional()
-  @IsString()
-  motivoPreferencia?: string;
-
-  @ApiProperty({
-    description: 'ID del trabajador que registra la matrícula (requerido para registro en caja simple)',
-    example: 'f1a2b3c4-d5e6-7890-abcd-ef1234567890',
-    format: 'uuid',
-    required: false
-  })
-  @IsOptional()
-  @IsUUID()
-  registradoPor?: string;
-  @ApiProperty({
-    description:
-      'Tipo de asignación de aula: "automatica" (recomendado) o "manual" (el usuario elige)',
-    example: 'automatica',
-    enum: ['automatica', 'manual'],
-    default: 'automatica',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  tipoAsignacionAula?: 'automatica' | 'manual';
-
-}
+  idAula: string;}

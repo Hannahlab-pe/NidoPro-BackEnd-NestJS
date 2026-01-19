@@ -34,16 +34,14 @@ export class MatriculaService {
       let apoderado: any = null;
       let estudiante: any = null;
 
-      // Si se proporciona ID, buscar por ID primero
+      // === MANEJO DEL APODERADO ===
       if (createMatriculaDto.idApoderado) {
         apoderado = await this.apoderadoService.findOne(
           createMatriculaDto.idApoderado,
         );
       }
 
-      // Si no se encontró por ID y se tienen datos, buscar por documento
       if (!apoderado && createMatriculaDto.apoderadoData?.documentoIdentidad) {
-        // Buscar por documento si existe el método
         try {
           apoderado = await this.apoderadoService.findByDocumento(
             createMatriculaDto.apoderadoData.documentoIdentidad,
@@ -53,16 +51,13 @@ export class MatriculaService {
         }
       }
 
-      // Si aún no existe, crear nuevo apoderado
       if (!apoderado) {
-        // Validar que se proporcionaron datos del apoderado
         if (!createMatriculaDto.apoderadoData) {
           throw new BadRequestException(
             'Se requiere proporcionar idApoderado o apoderadoData para crear la matrícula',
           );
         }
 
-        // Validar campos requeridos para crear apoderado
         if (
           !createMatriculaDto.apoderadoData.nombre ||
           !createMatriculaDto.apoderadoData.apellido ||
@@ -74,19 +69,6 @@ export class MatriculaService {
           );
         }
 
-        if (Array.isArray(createMatriculaDto.apoderadoData)) {
-          createMatriculaDto.apoderadoData.forEach((apoderadoData) => {
-            const createApoderadoDto = {
-              nombre: apoderadoData.nombre,
-              apellido: apoderadoData.apellido,
-              tipoDocumentoIdentidad: apoderadoData.tipoDocumentoIdentidad,
-              documentoIdentidad: apoderadoData.documentoIdentidad,
-            };
-            apoderado = this.apoderadoService.create(createApoderadoDto);
-          });
-        }
-
-        // Crear DTO para el servicio de apoderado
         const createApoderadoDto: any = {
           nombre: createMatriculaDto.apoderadoData.nombre,
           apellido: createMatriculaDto.apoderadoData.apellido,
@@ -106,8 +88,6 @@ export class MatriculaService {
       }
 
       // === MANEJO DEL ESTUDIANTE ===
-
-      // Si se proporciona ID, buscar por ID primero
       if (createMatriculaDto.idEstudiante) {
         try {
           estudiante = await this.estudianteService.findOne(
@@ -118,40 +98,33 @@ export class MatriculaService {
         }
       }
 
-      // Si no se encontró por ID y se tienen datos, buscar por documento
       if (!estudiante && createMatriculaDto.estudianteData?.nroDocumento) {
         try {
-          // Buscar por documento si existe el método
           estudiante = await this.estudianteService.findByDocumento(
             createMatriculaDto.estudianteData.nroDocumento,
           );
         } catch (error) {
-          // Si no existe el método findByDocumento, continuamos
           estudiante = null;
         }
       }
 
-      // Si aún no existe, crear nuevo estudiante
       if (!estudiante) {
-        // Validar que se proporcionaron datos del estudiante
         if (!createMatriculaDto.estudianteData) {
           throw new BadRequestException(
             'Se requiere proporcionar idEstudiante o estudianteData para crear la matrícula',
           );
         }
 
-        // Validar campos requeridos para crear estudiante
         if (
           !createMatriculaDto.estudianteData.nombre ||
           !createMatriculaDto.estudianteData.apellido ||
           !createMatriculaDto.estudianteData.nroDocumento
         ) {
           throw new BadRequestException(
-            'Para crear un estudiante son requeridos: nombre, apellido, idRol y nroDocumento',
+            'Para crear un estudiante son requeridos: nombre, apellido y nroDocumento',
           );
         }
 
-        // PRIMERO: Crear DTO para el servicio de estudiante
         const createEstudianteDto: any = {
           nombre: createMatriculaDto.estudianteData.nombre,
           apellido: createMatriculaDto.estudianteData.apellido,
@@ -160,23 +133,32 @@ export class MatriculaService {
           nroDocumento: createMatriculaDto.estudianteData.nroDocumento,
           observaciones:
             createMatriculaDto.estudianteData.observaciones || null,
-          idRol: '5c0e7652-cad9-461f-b24a-8c61d7ee4e21',
+          // Buscar el rol de estudiante dinámicamente
+          idRol: null, // Se asignará después
           imagen_estudiante:
             createMatriculaDto.estudianteData.imagen_estudiante || null,
         };
 
-        //  CREAR EL ESTUDIANTE
+        // Buscar el ID del rol ESTUDIANTE desde la base de datos
+        const rolEstudiante = await manager.query(
+          "SELECT id_rol FROM rol WHERE LOWER(nombre) = 'estudiante' AND esta_activo = true LIMIT 1"
+        );
+
+        if (!rolEstudiante || rolEstudiante.length === 0) {
+          throw new BadRequestException('No se encontró el rol de ESTUDIANTE en el sistema');
+        }
+
+        createEstudianteDto.idRol = rolEstudiante[0].id_rol;
+
         const resultadoEstudiante =
           await this.estudianteService.create(createEstudianteDto);
         estudiante = resultadoEstudiante.estudiante || resultadoEstudiante;
       }
 
-      // CREAR CONTACTOS DE EMERGENCIA
-
-      if (createMatriculaDto.estudianteData?.contactosEmergencia && createMatriculaDto.estudianteData.contactosEmergencia.length > 0) {
-
-        for (const contactoData of createMatriculaDto.estudianteData
-          .contactosEmergencia) {
+      // === CREAR CONTACTOS DE EMERGENCIA ===
+      if (createMatriculaDto.estudianteData?.contactosEmergencia && 
+          createMatriculaDto.estudianteData.contactosEmergencia.length > 0) {
+        for (const contactoData of createMatriculaDto.estudianteData.contactosEmergencia) {
           const contactoEmergencia = new ContactoEmergencia();
           contactoEmergencia.nombre = contactoData.nombre;
           contactoEmergencia.apellido = contactoData.apellido;
@@ -189,18 +171,11 @@ export class MatriculaService {
           contactoEmergencia.prioridad = contactoData.prioridad || 1;
           contactoEmergencia.idEstudiante = estudiante;
 
-          const contactoGuardado = await manager.save(
-            ContactoEmergencia,
-            contactoEmergencia,
-          );
-          console.log(
-            'Contacto guardado:',
-            contactoGuardado.nombre,
-            contactoGuardado.apellido,
-          );
+          await manager.save(ContactoEmergencia, contactoEmergencia);
         }
       }
 
+      // === VALIDAR GRADO ===
       const grado = await this.gradoService.findOne(createMatriculaDto.idGrado);
       if (!grado) {
         throw new NotFoundException(
@@ -208,23 +183,7 @@ export class MatriculaService {
         );
       }
 
-      if (
-        !createMatriculaDto.idApoderado &&
-        !createMatriculaDto.apoderadoData
-      ) {
-        throw new BadRequestException('Se requiere proporcionar idApoderado o apoderadoData');
-      }
-
-      if (
-        !createMatriculaDto.idEstudiante &&
-        !createMatriculaDto.estudianteData
-      ) {
-        throw new BadRequestException(
-          'Se requiere proporcionar idEstudiante o estudianteData',
-        );
-      }
-
-      // VALIDAR QUE EL ESTUDIANTE NO ESTÉ YA MATRICULADO EN EL AÑO ESCOLAR
+      // === VALIDAR DUPLICADOS ===
       const anioEscolarActual =
         createMatriculaDto.anioEscolar || new Date().getFullYear().toString();
 
@@ -247,10 +206,11 @@ export class MatriculaService {
 
       // === CREAR MATRÍCULA ===
       const matricula = new Matricula();
-      matricula.costoMatricula = createMatriculaDto.costoMatricula;
+      matricula.costoMatricula = createMatriculaDto.costoMatricula || '0';
       matricula.fechaIngreso = createMatriculaDto.fechaIngreso;
       matricula.metodoPago = createMatriculaDto.metodoPago ?? null;
-      matricula.voucherImg = createMatriculaDto.voucherImg ?? null;
+      // Soporte para voucherImg o voucherUrl (compatibilidad)
+      matricula.voucherImg = createMatriculaDto.voucherImg || createMatriculaDto.voucherUrl || null;
       matricula.anioEscolar = anioEscolarActual;
       matricula.idApoderado = apoderado;
       matricula.idEstudiante = estudiante;
@@ -258,8 +218,7 @@ export class MatriculaService {
 
       const matriculaGuardada = await manager.save(Matricula, matricula);
 
-      // CARGAR MATRÍCULA COMPLETA 
-
+      // === CARGAR MATRÍCULA COMPLETA ===
       const matriculaCompleta = await manager.findOne(Matricula, {
         where: { idMatricula: matriculaGuardada.idMatricula },
         relations: [
@@ -274,146 +233,6 @@ export class MatriculaService {
 
       if (!matriculaCompleta) {
         throw new BadRequestException('Error al recuperar la matrícula creada');
-      }
-
-      try {
-        let aulaAsignada: any = null;
-        let tipoAsignacion =
-          createMatriculaDto.tipoAsignacionAula || 'automatica';
-
-        if (
-          createMatriculaDto.idAulaEspecifica &&
-          tipoAsignacion === 'manual'
-        ) {
-          // Verificar que el aula existe y pertenece al grado correcto
-          const aulaEspecifica = await this.aulaRepository.aulaEspecifica(
-            createMatriculaDto.idAulaEspecifica,
-            createMatriculaDto.idGrado,
-          );
-
-          if (!aulaEspecifica) {
-            throw new NotFoundException(
-              'El aula especificada no existe o no pertenece al grado seleccionado',
-            );
-          }
-
-          const validacionCupos = await this.aulaRepository.validarCuposDisponibles(
-            createMatriculaDto.idAulaEspecifica
-          );
-
-          if (!validacionCupos.tieneEspacio) {
-            throw new BadRequestException(
-              `El aula sección ${validacionCupos.detalles?.seccion || 'desconocida'} no tiene cupos disponibles. ` +
-              `Capacidad: ${validacionCupos.detalles?.cantidadEstudiantes || 0}, ` +
-              `Asignados: ${validacionCupos.detalles?.estudiantesAsignados || 0}, ` +
-              `Cupos disponibles: ${validacionCupos.detalles?.cuposDisponibles || 0}`
-            );
-          }
-
-          aulaAsignada = validacionCupos.detalles;
-
-
-        } else {
-
-          const aulasConDetalles = await this.aulaRepository.getAulasDisponiblesConDetalles(
-            createMatriculaDto.idGrado
-          );
-
-          // Filtrar solo las que tienen cupos disponibles
-          const aulasDisponibles = aulasConDetalles.filter(aula => aula.cuposDisponibles > 0);
-
-          if (aulasDisponibles.length === 0) {
-            throw new BadRequestException(
-              'No hay aulas disponibles para el grado seleccionado'
-            );
-          }
-
-          aulasDisponibles.sort((a, b) => b.cuposDisponibles - a.cuposDisponibles);
-
-          aulaAsignada = aulasDisponibles[0];
-
-        }
-
-        // === CREAR LA ASIGNACIÓN ===
-        const asignacionAula = new MatriculaAula();
-        asignacionAula.idMatricula = matriculaCompleta.idMatricula;
-        asignacionAula.idAula = aulaAsignada.idAula;
-        asignacionAula.fechaAsignacion = new Date().toISOString().split('T')[0];
-        asignacionAula.estado = 'activo';
-
-        const asignacionGuardada = await manager.save(
-          MatriculaAula,
-          asignacionAula,
-        );
-
-        //cargar asignacion completa y agregar a la respuesta
-        const asignacionCompleta = await manager.findOne(MatriculaAula, {
-          where: { idMatriculaAula: asignacionGuardada.idMatriculaAula },
-          relations: ['aula'],
-        });
-
-        if (asignacionCompleta) {
-          matriculaCompleta.matriculaAula = asignacionCompleta;
-        }
-      } catch (error) {
-        // Si el error es sobre validación de cupos o aula no encontrada, propagarlo directamente
-        if (error instanceof BadRequestException || error instanceof NotFoundException) {
-          if (error.message.includes('cupos disponibles') ||
-            error.message.includes('aula especificada') ||
-            error.message.includes('aula sección')) {
-            throw error; // Propagar el error original sin modificar
-          }
-        }
-
-        // Para otros errores, usar el mensaje genérico
-        throw new BadRequestException('Error al asignar aula a la matrícula', error.message || error);
-      }
-
-      // REGISTRO CAJA SIMPLE
-      try {
-        if (matriculaCompleta.costoMatricula && parseFloat(matriculaCompleta.costoMatricula) > 0) {
-
-
-          // Validar que el registradoPor existe en la tabla trabajador si se proporciona
-          let registradoPorValido = '00000000-0000-0000-0000-000000000000';
-
-          if (createMatriculaDto.registradoPor) {
-            const trabajadorExiste = await manager.query(
-              'SELECT id_trabajador FROM trabajador WHERE id_trabajador = $1',
-              [createMatriculaDto.registradoPor]
-            );
-
-            if (trabajadorExiste && trabajadorExiste.length > 0) {
-              registradoPorValido = createMatriculaDto.registradoPor;
-
-            }
-          }
-
-          const registroCajaDto: CrearIngresoPorMatriculaDto = {
-            idEstudiante: matriculaCompleta.idEstudiante.idEstudiante,
-            monto: parseFloat(matriculaCompleta.costoMatricula),
-            metodoPago: matriculaCompleta.metodoPago || 'EFECTIVO',
-            numeroComprobante: matriculaCompleta.voucherImg ?
-              `MAT-${matriculaCompleta.idMatricula.substring(0, 8)}` : undefined,
-            registradoPor: registradoPorValido,
-            periodoEscolar: new Date().getFullYear().toString()
-          };
-
-          // Registrar el movimiento en caja simple
-          await this.cajaSimpleService.crearIngresoPorMatricula(registroCajaDto);
-
-        } else {
-          throw new BadRequestException(' No se registró en caja simple: matrícula sin costo o costo = 0');
-        }
-      } catch (error) {
-        // Manejo especial para errores de foreign key
-        if (error.code === '23503' && error.detail?.includes('registrado_por')) {
-          throw new BadRequestException(
-            'El ID del trabajador proporcionado no existe en el sistema. ' +
-            'Verifique que el trabajador esté registrado correctamente.'
-          );
-        }
-        throw new BadRequestException(`Error al registrar la matrícula en caja simple: ${error.message}`);
       }
 
       return matriculaCompleta;
@@ -1192,6 +1011,87 @@ export class MatriculaService {
     } catch (error) {
       throw new InternalServerErrorException('Error al anular matrícula');
     }
+  }
+
+  // ===== NUEVO: ASIGNAR AULA A MATRÍCULA =====
+  async asignarAula(idMatricula: string, idAula: string): Promise<any> {
+    return await this.dataSource.transaction(async (manager) => {
+      // Verificar que la matrícula existe
+      const matricula = await manager.findOne(Matricula, {
+        where: { idMatricula },
+        relations: ['idGrado', 'idEstudiante', 'matriculaAula'],
+      });
+
+      if (!matricula) {
+        throw new NotFoundException('Matrícula no encontrada');
+      }
+
+      // Verificar si ya tiene aula asignada
+      if (matricula.matriculaAula) {
+        throw new BadRequestException(
+          `Esta matrícula ya tiene asignada el aula sección ${matricula.matriculaAula.aula?.seccion || 'N/A'}. ` +
+          `Use el endpoint de actualización para cambiarla.`
+        );
+      }
+
+      // Verificar que el aula existe y pertenece al grado correcto
+      const aulaEspecifica = await this.aulaRepository.aulaEspecifica(
+        idAula,
+        matricula.idGrado.idGrado,
+      );
+
+      if (!aulaEspecifica) {
+        throw new NotFoundException(
+          'El aula especificada no existe o no pertenece al grado de la matrícula',
+        );
+      }
+
+      // Validar cupos disponibles
+      const validacionCupos = await this.aulaRepository.validarCuposDisponibles(idAula);
+
+      if (!validacionCupos.tieneEspacio) {
+        throw new BadRequestException(
+          `El aula sección ${validacionCupos.detalles?.seccion || 'desconocida'} no tiene cupos disponibles. ` +
+          `Capacidad: ${validacionCupos.detalles?.cantidadEstudiantes || 0}, ` +
+          `Asignados: ${validacionCupos.detalles?.estudiantesAsignados || 0}, ` +
+          `Cupos disponibles: ${validacionCupos.detalles?.cuposDisponibles || 0}`
+        );
+      }
+
+      // Crear la asignación
+      const asignacionAula = new MatriculaAula();
+      asignacionAula.idMatricula = idMatricula;
+      asignacionAula.idAula = idAula;
+      asignacionAula.fechaAsignacion = new Date().toISOString().split('T')[0];
+      asignacionAula.estado = 'activo';
+
+      const asignacionGuardada = await manager.save(MatriculaAula, asignacionAula);
+
+      // Cargar la asignación completa
+      const asignacionCompleta = await manager.findOne(MatriculaAula, {
+        where: { idMatriculaAula: asignacionGuardada.idMatriculaAula },
+        relations: ['aula', 'aula.idGrado'],
+      });
+
+      if (!asignacionCompleta) {
+        throw new BadRequestException('Error al cargar la asignación del aula');
+      }
+
+      return {
+        success: true,
+        message: 'Aula asignada correctamente',
+        asignacion: {
+          idMatriculaAula: asignacionCompleta.idMatriculaAula,
+          estudiante: `${matricula.idEstudiante.nombre} ${matricula.idEstudiante.apellido}`,
+          aula: {
+            idAula: asignacionCompleta.aula.idAula,
+            seccion: asignacionCompleta.aula.seccion,
+            grado: asignacionCompleta.aula.idGrado.grado,
+          },
+          fechaAsignacion: asignacionCompleta.fechaAsignacion,
+        },
+      };
+    });
   }
 
 }

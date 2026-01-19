@@ -1,6 +1,7 @@
 import { AsignacionCurso } from "src/asignacion-curso/entities/asignacion-curso.entity";
 import { CursoGrado } from "src/curso-grado/entities/curso-grado.entity";
 import { Evaluacion } from "src/evaluacion/entities/evaluacion.entity";
+import { AsignacionDocenteCursoAula } from "src/asignacion-docente-curso-aula/entities/asignacion-docente-curso-aula.entity";
 import { Column, Entity, Index, OneToMany } from "typeorm";
 
 @Index("idx_curso_info", ["estaActivo", "nombreCurso"], {})
@@ -38,4 +39,10 @@ export class Curso {
 
     @OneToMany(() => CursoGrado, (cursoGrado) => cursoGrado.curso)
     cursoGrados: CursoGrado[];
+
+    @OneToMany(
+        () => AsignacionDocenteCursoAula,
+        (asignacionDocenteCursoAula) => asignacionDocenteCursoAula.idCurso
+    )
+    asignacionDocenteCursoAulas: AsignacionDocenteCursoAula[];
 }

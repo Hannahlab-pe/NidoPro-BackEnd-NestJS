@@ -25,6 +25,7 @@ import { SeguroTrabajador } from 'src/seguro-trabajador/entities/seguro-trabajad
 import { SueldoTrabajador } from 'src/sueldo-trabajador/entities/sueldo-trabajador.entity';
 import { Tarea } from 'src/tarea/entities/tarea.entity';
 import { Notificacion } from 'src/notificacion/entities/notificacion.entity';
+import { AsignacionDocenteCursoAula } from 'src/asignacion-docente-curso-aula/entities/asignacion-docente-curso-aula.entity';
 
 @Index(
   'idx_trabajador_info',
@@ -101,6 +102,12 @@ export class Trabajador {
     (asignacionCurso) => asignacionCurso.idTrabajador,
   )
   asignacionCursos: AsignacionCurso[];
+
+  @OneToMany(
+    () => AsignacionDocenteCursoAula,
+    (asignacionDocenteCursoAula) => asignacionDocenteCursoAula.idTrabajador,
+  )
+  asignacionDocenteCursoAulas: AsignacionDocenteCursoAula[];
 
   @OneToMany(
     () => ContratoTrabajador,

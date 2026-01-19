@@ -82,4 +82,45 @@ export class CursoGradoService {
       return cursoGradoGuardado;
     });
   }
+
+  async findAll(): Promise<CursoGrado[]> {
+    return await this.cursoGradoRepository.find({
+      relations: ['curso', 'grado'],
+      order: {
+        fechaAsignacion: 'DESC'
+      }
+    });
+  }
+
+  async findOne(id: string): Promise<CursoGrado> {
+    const cursoGrado = await this.cursoGradoRepository.findOne({
+      where: { idCursoGrado: id },
+      relations: ['curso', 'grado']
+    });
+
+    if (!cursoGrado) {
+      throw new NotFoundException(`Asignación curso-grado con ID ${id} no encontrada`);
+    }
+
+    return cursoGrado;
+  }
+
+  async update(id: string, updateCursoGradoDto: UpdateCursoGradoDto): Promise<CursoGrado> {
+    const cursoGrado = await this.findOne(id);
+
+    if (updateCursoGradoDto.estaActivo !== undefined) {
+      cursoGrado.estaActivo = updateCursoGradoDto.estaActivo;
+    }
+
+    if (updateCursoGradoDto.fechaAsignacion) {
+      cursoGrado.fechaAsignacion = updateCursoGradoDto.fechaAsignacion;
+    }
+
+    return await this.cursoGradoRepository.save(cursoGrado);
+  }
+
+  async remove(id: string): Promise<void> {
+    const cursoGrado = await this.findOne(id);
+    await this.cursoGradoRepository.remove(cursoGrado);
+  }
 }

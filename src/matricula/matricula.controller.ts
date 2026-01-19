@@ -10,7 +10,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { MatriculaService } from './matricula.service';
-import { CreateMatriculaDto, ActualizarContactosMatriculaDto } from './dto/create-matricula.dto';
+import { CreateMatriculaDto, ActualizarContactosMatriculaDto, AsignarAulaDto } from './dto/create-matricula.dto';
 import { ApiOperation, ApiQuery, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { SearchMatriculaDto } from './dto/search-matricula.dto';
 import { RegistrarMatriculaEnCajaSimpleDto } from './dto/registrar-caja-simple.dto';
@@ -20,16 +20,41 @@ export class MatriculaController {
   constructor(private readonly matriculaService: MatriculaService) { }
 
   @Post()
-  @ApiOperation({ summary: 'Registrar una nueva matrícula para un estudiante' })
+  @ApiOperation({ 
+    summary: 'Registrar una nueva matrícula (PASO 1)',
+    description: 'Crea la matrícula con apoderado y estudiante. NO asigna aula automáticamente.'
+  })
   async create(@Body() createMatriculaDto: CreateMatriculaDto) {
-
     const data = await this.matriculaService.create(createMatriculaDto);
     return {
       success: true,
-      message: 'Matricula Registrada Correctamente',
+      message: 'Matrícula registrada correctamente. Ahora debe asignar el aula.',
       info: {
         data,
+        siguientePaso: 'Use POST /matricula/:id/asignar-aula para asignar el aula'
       },
+    };
+  }
+
+  @Post(':id/asignar-aula')
+  @ApiOperation({ 
+    summary: 'Asignar aula a una matrícula (PASO 2)',
+    description: 'Asigna manualmente un aula a una matrícula existente'
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'ID de la matrícula',
+    example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+  })
+  async asignarAula(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() asignarAulaDto: AsignarAulaDto
+  ) {
+    const data = await this.matriculaService.asignarAula(id, asignarAulaDto.idAula);
+    return {
+      success: true,
+      message: 'Aula asignada correctamente',
+      info: data,
     };
   }
 

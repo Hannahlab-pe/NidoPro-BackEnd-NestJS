@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(psql:*)",
+      "Bash(node -e:*)",
+      "Bash(curl:*)"
+    ]
+  }
+}

@@ -48,6 +48,7 @@ import { PlanificacionModule } from './planificacion/planificacion.module';
 import { ComentarioDocenteModule } from './comentario-docente/comentario-docente.module';
 import { RAGModule } from './rag/rag.module';
 import { NotificacionModule } from './notificacion/notificacion.module';
+import { AsignacionDocenteCursoAulaModule } from './asignacion-docente-curso-aula/asignacion-docente-curso-aula.module';
 
 @Module({
   imports: [
@@ -110,6 +111,7 @@ import { NotificacionModule } from './notificacion/notificacion.module';
     PlanificacionModule,
     ComentarioDocenteModule,
     NotificacionModule,
+    AsignacionDocenteCursoAulaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
