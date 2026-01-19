@@ -57,14 +57,15 @@ import { AsignacionDocenteCursoAulaModule } from './asignacion-docente-curso-aul
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
-      username: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      schema: process.env.DB_SCHEMA,
+      host: process.env.DB_HOST || process.env.PGHOST,
+      port: Number(process.env.DB_PORT || process.env.PGPORT || 5432),
+      username: process.env.DB_USER || process.env.PGUSER,
+      password: process.env.DB_PASSWORD || process.env.PGPASSWORD,
+      database: process.env.DB_NAME || process.env.PGDATABASE,
+      schema: process.env.DB_SCHEMA || 'public',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true, // Crea las tablas automáticamente - SOLO para desarrollo
+      synchronize: true, // Crea las tablas automáticamente
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
     }),
     RAGModule,
     ApoderadoModule,
