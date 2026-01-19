@@ -44,10 +44,11 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, documentFactory);
 
   const port = process.env.PORT ?? 3000;
-  await app.listen(port);
+  // Escuchar en 0.0.0.0 para permitir conexiones externas (Railway/Docker)
+  await app.listen(port, '0.0.0.0');
   console.log(`✅ Servidor corriendo en puerto ${port}`);
-  console.log(`🌐 API disponible en: http://localhost:${port}/api/v1`);
-  console.log(`📚 Swagger docs en: http://localhost:${port}/api`);
+  console.log(`🌐 API disponible en: http://0.0.0.0:${port}/api/v1`);
+  console.log(`📚 Swagger docs en: http://0.0.0.0:${port}/api`);
 }
 
 bootstrap().catch(err => {
