@@ -12,11 +12,11 @@ async function bootstrap() {
       'http://localhost:5173', // Desarrollo
       'http://localhost:3000',
       'http://localhost:3001', 
-      'https://eda.up.railway.app/',
-      // Desarrollo alternativo
+      'https://eda.up.railway.app', // Frontend en Railway
       // Desarrollo alternativo
       'https://nido-pro-frontend.vercel.app', // ← AGREGAR ESTO
       'https://awsnidopr.up.railway.app', // Si necesitan comunicación interna
+      'https://nidopro.up.railway.app', // Backend URL
     ],
     credentials: true,
   });
