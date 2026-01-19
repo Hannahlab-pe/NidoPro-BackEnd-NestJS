@@ -9,7 +9,9 @@
       "Bash(nest g:*)",
       "Bash(nest g controller:*)",
       "Bash(railway logs:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }

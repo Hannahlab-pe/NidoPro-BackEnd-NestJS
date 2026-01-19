@@ -4,22 +4,24 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  console.log('🚀 Iniciando NidoPro Backend...');
+  console.log('📦 Variables de entorno cargadas:');
+  console.log('   - DB_HOST:', process.env.DB_HOST);
+  console.log('   - DB_PORT:', process.env.DB_PORT);
+  console.log('   - PORT:', process.env.PORT);
+  console.log('   - GCS_BUCKET_NAME:', process.env.GCS_BUCKET_NAME || 'NO CONFIGURADO');
 
-  // Configuración de CORS para permitir los orígenes especificados
+  const app = await NestFactory.create(AppModule);
+  console.log('✅ AppModule creado exitosamente');
+
+  // Configuración de CORS para permitir todos los orígenes (TEMPORAL - DEBUG)
   app.enableCors({
-    origin: [
-      'http://localhost:5173', // Desarrollo
-      'http://localhost:3000',
-      'http://localhost:3001', 
-      'https://eda.up.railway.app', // Frontend en Railway
-      // Desarrollo alternativo
-      'https://nido-pro-frontend.vercel.app', // ← AGREGAR ESTO
-      'https://awsnidopr.up.railway.app', // Si necesitan comunicación interna
-      'https://nidopro.up.railway.app', // Backend URL
-    ],
+    origin: true, // Permite TODOS los orígenes
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   });
+  console.log('✅ CORS habilitado para todos los orígenes');
 
   // Prefijo global para la API
   app.setGlobalPrefix('api/v1');
@@ -41,6 +43,14 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
 
-  await app.listen(process.env.PORT ?? 3000);
+  const port = process.env.PORT ?? 3000;
+  await app.listen(port);
+  console.log(`✅ Servidor corriendo en puerto ${port}`);
+  console.log(`🌐 API disponible en: http://localhost:${port}/api/v1`);
+  console.log(`📚 Swagger docs en: http://localhost:${port}/api`);
 }
-bootstrap();
+
+bootstrap().catch(err => {
+  console.error('❌ Error fatal al iniciar la aplicación:', err);
+  process.exit(1);
+});
