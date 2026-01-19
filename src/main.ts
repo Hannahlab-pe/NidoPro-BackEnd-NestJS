@@ -11,7 +11,9 @@ async function bootstrap() {
     origin: [
       'http://localhost:5173', // Desarrollo
       'http://localhost:3000',
-      'http://localhost:3001', // Desarrollo alternativo
+      'http://localhost:3001', 
+      'https://eda.up.railway.app/',
+      // Desarrollo alternativo
       // Desarrollo alternativo
       'https://nido-pro-frontend.vercel.app', // ← AGREGAR ESTO
       'https://awsnidopr.up.railway.app', // Si necesitan comunicación interna
