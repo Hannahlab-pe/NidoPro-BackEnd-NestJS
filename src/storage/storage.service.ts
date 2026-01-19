@@ -8,49 +8,59 @@ export class StorageService {
     private bucketName: string;
 
     constructor() {
-        // Obtener variables de entorno
-        const projectId = process.env.GCS_PROJECT_ID;
-        const keyFilename = process.env.GCS_KEY_FILE;
-        const bucketName = process.env.GCS_BUCKET_NAME;
-        const credentialsJson = process.env.GCS_CREDENTIALS;
+        try {
+            // Obtener variables de entorno
+            const projectId = process.env.GCS_PROJECT_ID;
+            const keyFilename = process.env.GCS_KEY_FILE;
+            const bucketName = process.env.GCS_BUCKET_NAME;
+            const credentialsJson = process.env.GCS_CREDENTIALS;
 
-        // Validar bucket name
-        if (!bucketName) {
-            throw new Error('GCS_BUCKET_NAME no está configurado en las variables de entorno');
-        }
-        this.bucketName = bucketName;
-
-        // Configuración para Google Cloud Storage
-        let storageConfig: any = {
-            projectId: projectId,
-        };
-
-        // OPCIÓN 1: Usar credenciales desde variable de entorno (PRODUCCIÓN)
-        if (credentialsJson) {
-            try {
-                const credentials = JSON.parse(credentialsJson);
-                storageConfig.credentials = credentials;
-                console.log('✅ Usando credenciales desde variable de entorno GCS_CREDENTIALS');
-            } catch (error) {
-                console.error('❌ Error al parsear GCS_CREDENTIALS:', error);
-                throw new Error('GCS_CREDENTIALS tiene un formato JSON inválido');
+            // Validar bucket name
+            if (!bucketName) {
+                console.warn('⚠️  GCS_BUCKET_NAME no está configurado - Storage deshabilitado');
+                this.bucketName = 'not-configured';
+                return;
             }
-        }
-        // OPCIÓN 2: Usar archivo de credenciales (DESARROLLO)
-        else if (keyFilename) {
-            storageConfig.keyFilename = keyFilename;
-            console.log(`✅ Usando credenciales desde archivo: ${keyFilename}`);
-        }
-        // Sin credenciales configuradas
-        else {
-            console.warn('⚠️  No se encontraron credenciales de Google Cloud Storage');
-            console.warn('   Configura GCS_CREDENTIALS (JSON) o GCS_KEY_FILE (ruta al archivo)');
-        }
+            this.bucketName = bucketName;
 
-        // Inicializar Google Cloud Storage
-        this.storage = new Storage(storageConfig);
+            // Configuración para Google Cloud Storage
+            let storageConfig: any = {
+                projectId: projectId,
+            };
 
-        console.log(`✅ Google Cloud Storage inicializado - Bucket: ${this.bucketName}`);
+            // OPCIÓN 1: Usar credenciales desde variable de entorno (PRODUCCIÓN)
+            if (credentialsJson) {
+                try {
+                    const credentials = JSON.parse(credentialsJson);
+                    storageConfig.credentials = credentials;
+                    console.log('✅ Usando credenciales desde variable de entorno GCS_CREDENTIALS');
+                } catch (error) {
+                    console.error('❌ Error al parsear GCS_CREDENTIALS:', error);
+                    console.warn('⚠️  Storage module deshabilitado debido a credenciales inválidas');
+                    return;
+                }
+            }
+            // OPCIÓN 2: Usar archivo de credenciales (DESARROLLO)
+            else if (keyFilename) {
+                storageConfig.keyFilename = keyFilename;
+                console.log(`✅ Usando credenciales desde archivo: ${keyFilename}`);
+            }
+            // Sin credenciales configuradas
+            else {
+                console.warn('⚠️  No se encontraron credenciales de Google Cloud Storage');
+                console.warn('   Configura GCS_CREDENTIALS (JSON) o GCS_KEY_FILE (ruta al archivo)');
+                console.warn('   Storage module deshabilitado');
+                return;
+            }
+
+            // Inicializar Google Cloud Storage
+            this.storage = new Storage(storageConfig);
+
+            console.log(`✅ Google Cloud Storage inicializado - Bucket: ${this.bucketName}`);
+        } catch (error) {
+            console.error('❌ Error fatal al inicializar Google Cloud Storage:', error);
+            console.warn('⚠️  La aplicación continuará sin el módulo de Storage');
+        }
     }
 
     /**
@@ -60,6 +70,10 @@ export class StorageService {
      * @returns URL pública del archivo
      */
     async uploadFile(file: Express.Multer.File, folder: string = 'general'): Promise<string> {
+        if (!this.storage) {
+            throw new InternalServerErrorException('Google Cloud Storage no está configurado');
+        }
+
         if (!file) {
             throw new BadRequestException('No se proporcionó ningún archivo');
         }
