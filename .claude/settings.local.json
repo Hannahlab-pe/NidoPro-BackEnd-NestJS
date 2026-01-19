@@ -4,7 +4,10 @@
       "Bash(dir:*)",
       "Bash(psql:*)",
       "Bash(node -e:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm install:*)",
+      "Bash(nest g:*)",
+      "Bash(nest g controller:*)"
     ]
   }
 }
